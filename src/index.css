@@ -54,3 +54,29 @@
 .animate-slide-in {
     animation: slide-in 1s ease-out forwards;
 }
+
+/* Custom styles for floating labels */
+input:focus + label,
+input:not(:placeholder-shown) + label {
+    top: -0.5rem;
+    font-size: 0.75rem;
+    color: #f97316; /* orange-500 */
+}
+
+/* Transition for labels */
+label {
+    transition: all 0.3s ease;
+}
+
+/* Custom backdrop blur for better readability */
+.backdrop-blur-xl {
+    background-color: rgba(255, 255, 255, 0.1); /* Fallback background */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px); /* For Safari and older browsers */
+}
+
+/* Gradient border for inputs on focus */
+input:focus {
+    border-image: linear-gradient(to right, #f97316, #f59e0b);
+    border-image-slice: 1;
+}

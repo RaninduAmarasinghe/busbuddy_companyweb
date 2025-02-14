@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";  // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");  // To hold error message
-    const navigate = useNavigate();  // Hook for redirection
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");  // Reset any previous errors
+        setError("");
 
         try {
             const response = await fetch("http://localhost:8080/companies/login", {
@@ -21,10 +21,9 @@ export default function Login() {
             const result = await response.text();
 
             if (response.ok) {
-                alert("Login Successful!");
-                navigate("/dashboard");  // Redirect to Dashboard page
+                navigate("/dashboard");
             } else {
-                setError(result);  // Show error message from backend
+                setError(result);
             }
         } catch (err) {
             console.error("Error:", err);
@@ -34,7 +33,7 @@ export default function Login() {
 
     return (
         <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative overflow-hidden">
-            {/* Floating bubbles background */}
+            {/* Bubbles background */}
             <div className="absolute w-full h-full flex flex-wrap">
                 {[...Array(20)].map((_, i) => (
                     <div
@@ -52,7 +51,7 @@ export default function Login() {
 
             {/* Login card */}
             <div className="flex w-full max-w-4xl h-4/5 bg-white bg-opacity-10 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden relative z-10">
-                {/* Left side - Welcome message */}
+                {/* Left side */}
                 <div className="flex-1 flex flex-col justify-center items-center p-10 text-center text-white bg-gradient-to-br from-purple-800 via-blue-600 to-transparent relative overflow-hidden">
                     <h1 className="text-4xl font-bold relative z-10 animate-fade-in">Welcome Back</h1>
                     <p className="mt-2 text-gray-300 relative z-10 animate-fade-in delay-100">
@@ -67,31 +66,42 @@ export default function Login() {
                         onSubmit={handleSubmit}
                     >
                         <h2 className="text-white text-2xl font-semibold text-center mb-6">Company Login</h2>
-                        {error && <p className="text-red-500 text-sm mb-4">{error}</p>} {/* Display error message */}
+                        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+                        {/* Email Input */}
                         <div className="mb-4 relative">
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="w-full bg-transparent border-b-2 border-gray-500 text-white py-2 px-3 focus:outline-none focus:border-orange-400 transition-all"
+                                className="w-full bg-transparent border-b-2 border-gray-500 text-white py-2 px-3 focus:outline-none focus:border-orange-400 transition-all peer"
+                                placeholder=" "
                             />
-                            <label className="absolute left-3 top-2 text-gray-400 text-sm transition-all pointer-events-none">
+                            <label className="absolute left-3 top-2 text-gray-400 text-sm transition-all duration-300 pointer-events-none
+                                peer-focus:-top-4 peer-focus:text-xs
+                                peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-xs">
                                 Company Email
                             </label>
                         </div>
+
+                        {/* Password Input */}
                         <div className="mb-6 relative">
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full bg-transparent border-b-2 border-gray-500 text-white py-2 px-3 focus:outline-none focus:border-orange-400 transition-all"
+                                className="w-full bg-transparent border-b-2 border-gray-500 text-white py-2 px-3 focus:outline-none focus:border-orange-400 transition-all peer"
+                                placeholder=" "
                             />
-                            <label className="absolute left-3 top-2 text-gray-400 text-sm transition-all pointer-events-none">
+                            <label className="absolute left-3 top-2 text-gray-400 text-sm transition-all duration-300 pointer-events-none
+                                peer-focus:-top-4 peer-focus:text-xs
+                                peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-xs">
                                 Password
                             </label>
                         </div>
+
                         <button
                             type="submit"
                             className="w-full py-2 bg-gradient-to-r from-orange-500 to-yellow-400 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:opacity-90"
