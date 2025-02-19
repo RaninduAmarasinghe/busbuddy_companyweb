@@ -21,7 +21,7 @@ export default function Dashboard() {
         {
             title: 'Driver Registration',
             icon: <UserCircleIcon className="w-8 h-8" />,
-            link: '/drivers/register',
+            link: '/driver/register',
             color: 'bg-blue-100 hover:bg-blue-200'
         },
         {
