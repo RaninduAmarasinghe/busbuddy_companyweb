@@ -31,7 +31,7 @@ export default function Driverregister() {
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/drivers/register', {
+            const response = await fetch('http://localhost:8080/driver/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -158,15 +158,7 @@ export default function Driverregister() {
                     </button>
                 </form>
 
-                <p className="text-center text-sm text-gray-600 mt-6">
-                    Already have an account?{' '}
-                    <button
-                        onClick={() => navigate('/login')}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                        Sign in here
-                    </button>
-                </p>
+
             </div>
         </div>
     );
