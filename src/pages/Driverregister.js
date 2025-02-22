@@ -40,7 +40,7 @@ export default function Driverregister() {
             if (!response.ok) throw new Error('Registration failed');
 
             alert('Registration successful!');
-            navigate('/login');
+            navigate('/dashboard');
         } catch (error) {
             alert(error.message || 'An error occurred during registration');
         } finally {

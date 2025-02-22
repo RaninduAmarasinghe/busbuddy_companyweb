@@ -33,7 +33,7 @@ export default function Dashboard() {
         {
             title: 'Bus Registration',
             icon: <TruckIcon className="w-8 h-8" />,
-            link: '/buses/register',
+            link: '/bus/register',
             color: 'bg-purple-100 hover:bg-purple-200'
         },
         {
