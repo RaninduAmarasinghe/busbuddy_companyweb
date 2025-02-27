@@ -39,7 +39,7 @@ export default function Dashboard() {
         {
             title: 'Bus Management',
             icon: <Cog8ToothIcon className="w-8 h-8" />,
-            link: '/buses/manage',
+            link: '/bus/management',
             color: 'bg-orange-100 hover:bg-orange-200'
         },
     ];
