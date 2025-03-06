@@ -1,4 +1,3 @@
-
 import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -52,16 +51,15 @@ export default function BusRegister() {
         try {
             // Fetch companyId from localStorage
             const companyId = localStorage.getItem('companyId');
+            console.log('Retrieved companyId:', companyId); // Log the companyId
+
             if (!companyId) {
                 alert('Company ID not found. Please log in again.');
                 return;
             }
 
-            // Add companyId to the data object
-            const busData = { ...data, companyId };
-
-            // Send the data to the backend
-            const response = await axios.post('phtt://localhost:8080/bus/add', busData);
+            // Send the data to the backend with companyId as a query parameter
+            const response = await axios.post(`http://localhost:8080/bus/add?companyId=${companyId}`, data);
             if (response.data === 'success') {
                 alert('Bus registered successfully!');
             } else {
