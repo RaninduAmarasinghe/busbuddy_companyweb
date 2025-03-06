@@ -15,28 +15,21 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const response = await fetch("http://localhost:8080/companies/login", {  // Changed port to 8080
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    companyEmail: email,
-                    companyPassword: password,
-                }),
+            const response = await fetch('http://localhost:8080/companies/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ companyEmail: email, companyPassword: password })
             });
 
-            const result = await response.text();
-
-            if (response.ok) {
-                alert("Login Successful!");
-                navigate("/dashboard");
-            } else {
-                setError(result || "Invalid email or password. Please try again.");
+            if (!response.ok) {
+                throw new Error('Login failed. Please check your email and password.');
             }
-        } catch (err) {
-            console.error("Error:", err);
-            setError("An error occurred. Please try again later.");
+
+            const companyId = await response.text(); // Get the companyId from the response
+            localStorage.setItem('companyId', companyId); // Store companyId in local storage
+            navigate('/dashboard'); // Redirect to the dashboard
+        } catch (error) {
+            setError(error.message || 'An error occurred during login');
         } finally {
             setLoading(false);
         }
@@ -81,6 +74,7 @@ export default function Login() {
                         {/* Display error message */}
                         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
+                        {/* Email Input */}
                         <div className="mb-4 relative">
                             <input
                                 type="email"
@@ -93,6 +87,8 @@ export default function Login() {
                                 Company Email
                             </label>
                         </div>
+
+                        {/* Password Input */}
                         <div className="mb-6 relative">
                             <input
                                 type={showPassword ? "text" : "password"}  // Toggle password visibility
@@ -112,6 +108,8 @@ export default function Login() {
                                 {showPassword ? "Hide" : "Show"}
                             </button>
                         </div>
+
+                        {/* Login Button */}
                         <button
                             type="submit"
                             className={`w-full py-2 bg-gradient-to-r from-orange-500 to-yellow-400 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:opacity-90 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -119,6 +117,8 @@ export default function Login() {
                         >
                             {loading ? "Logging In..." : "Login"}
                         </button>
+
+                        {/* Forgot Password Link */}
                         <p className="mt-4 text-center text-gray-400 cursor-pointer hover:text-orange-400 transition">
                             Forgot Password?
                         </p>

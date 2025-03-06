@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -50,8 +50,18 @@ export default function BusRegister() {
     // Handle form submission
     const onSubmit = async (data) => {
         try {
-            // Send POST request to the backend
-            const response = await axios.post('http://localhost:8080/bus/add', data);
+            // Fetch companyId from localStorage
+            const companyId = localStorage.getItem('companyId');
+            if (!companyId) {
+                alert('Company ID not found. Please log in again.');
+                return;
+            }
+
+            // Add companyId to the data object
+            const busData = { ...data, companyId };
+
+            // Send the data to the backend
+            const response = await axios.post('phtt://localhost:8080/bus/add', busData);
             if (response.data === 'success') {
                 alert('Bus registered successfully!');
             } else {
@@ -228,17 +238,12 @@ const RouteFields = ({ control, register, routeIndex, errors, onRemove }) => {
                     <button
                         type="button"
                         onClick={() => appendDeparture('')}
-                        className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center gap-1"
+                        className="text-cyan-400 hover:text-cyan-300"
                     >
-                        <PlusCircleIcon className="h-4 w-4" />
                         Add Departure Time
                     </button>
-                    {errors.routes?.[routeIndex]?.departureTimes && (
-                        <p className="text-rose-400 text-sm mt-1">
-                            {errors.routes[routeIndex].departureTimes.message}
-                        </p>
-                    )}
                 </div>
+
                 <div className="space-y-3">
                     <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                         <ClockIcon className="h-4 w-4" />
@@ -265,16 +270,10 @@ const RouteFields = ({ control, register, routeIndex, errors, onRemove }) => {
                     <button
                         type="button"
                         onClick={() => appendArrival('')}
-                        className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center gap-1"
+                        className="text-cyan-400 hover:text-cyan-300"
                     >
-                        <PlusCircleIcon className="h-4 w-4" />
                         Add Arrival Time
                     </button>
-                    {errors.routes?.[routeIndex]?.arrivalTimes && (
-                        <p className="text-rose-400 text-sm mt-1">
-                            {errors.routes[routeIndex].arrivalTimes.message}
-                        </p>
-                    )}
                 </div>
             </div>
         </div>

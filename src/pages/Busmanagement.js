@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import axios from 'axios';
-import { MagnifyingGlassIcon, PencilIcon, TrashIcon, PlusCircleIcon, } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PencilIcon, TrashIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 
 export default function BusManagement() {
     const [buses, setBuses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedBus, setSelectedBus] = useState(null);
+    const companyId = 'yourCompanyIdHere'; // Replace with actual company ID from auth
 
     // Fetch buses from API
     useEffect(() => {
         const fetchBuses = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/bus/all');
+                const response = await axios.get(`http://localhost:8080/bus/company/${companyId}`);
                 setBuses(response.data);
             } catch (error) {
                 console.error('Error fetching buses:', error);
             }
         };
         fetchBuses();
-    }, []);
+    }, [companyId]);
 
     // Search functionality
     const filteredBuses = buses.filter(bus =>
@@ -48,12 +49,12 @@ export default function BusManagement() {
                 await axios.put(`http://localhost:8080/bus/update/${selectedBus._id}`, data);
             } else {
                 // Create new bus
-                await axios.post('http://localhost:8080/bus/add', data);
+                await axios.post('http://localhost:8080/bus/add', { ...data, companyId });
             }
             setIsModalOpen(false);
             setSelectedBus(null);
             // Refresh bus list
-            const response = await axios.get('http://localhost:8080/bus/all');
+            const response = await axios.get(`http://localhost:8080/bus/company/${companyId}`);
             setBuses(response.data);
         } catch (error) {
             console.error('Error saving bus:', error);
@@ -227,63 +228,74 @@ function BusFormModal({ bus, onClose, onSubmit }) {
                                         onClick={() => remove(index)}
                                         className="text-rose-400 hover:text-rose-300"
                                     >
-                                        <TrashIcon className="h-5 w-5" />
+                                        Remove Route
                                     </button>
                                 )}
                             </div>
 
-                            {/* Route Fields */}
-                            <div className="space-y-4">
-                                <input
-                                    {...register(`routes.${index}.routeNumber`)}
-                                    type="number"
-                                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-gray-100"
-                                    placeholder="Route Number"
-                                />
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Start Point
+                                    </label>
                                     <input
-                                        {...register(`routes.${index}.startPoint`)}
-                                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-gray-100"
-                                        placeholder="Start Point"
+                                        {...register(`routes[${index}].startPoint`, { required: true })}
+                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        End Point
+                                    </label>
                                     <input
-                                        {...register(`routes.${index}.endPoint`)}
-                                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-gray-100"
-                                        placeholder="End Point"
+                                        {...register(`routes[${index}].endPoint`, { required: true })}
+                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Departure Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        {...register(`routes[${index}].departureTimes[0]`, { required: true })}
+                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Arrival Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        {...register(`routes[${index}].arrivalTimes[0]`, { required: true })}
+                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     />
                                 </div>
                             </div>
                         </div>
                     ))}
 
-                    <button
-                        type="button"
-                        onClick={() => append({
-                            routeNumber: routes.length + 1,
-                            startPoint: '',
-                            endPoint: '',
-                            departureTimes: [''],
-                            arrivalTimes: ['']
-                        })}
-                        className="w-full py-3 bg-cyan-600/30 hover:bg-cyan-600/40 border border-cyan-500/50 rounded-xl text-cyan-400 flex items-center justify-center gap-2"
-                    >
-                        <PlusCircleIcon className="h-5 w-5" />
-                        Add Route
-                    </button>
-
-                    <div className="flex justify-end gap-4">
+                    <div className="text-center">
                         <button
                             type="button"
-                            onClick={onClose}
-                            className="px-6 py-2 border border-gray-600 rounded-xl text-gray-300 hover:bg-gray-700/50"
+                            onClick={() => append({ routeNumber: routes.length + 1, startPoint: '', endPoint: '', departureTimes: [''], arrivalTimes: [''] })}
+                            className="text-cyan-400 hover:text-cyan-300"
                         >
-                            Cancel
+                            Add New Route
                         </button>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="flex justify-center mt-8">
                         <button
                             type="submit"
-                            className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-white font-semibold"
+                            className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-white"
                         >
-                            {bus ? 'Update Bus' : 'Create Bus'}
+                            Save Bus
                         </button>
                     </div>
                 </form>

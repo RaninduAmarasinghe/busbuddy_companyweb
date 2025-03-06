@@ -1,25 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiUser, FiMail, FiPhone, FiLock } from 'react-icons/fi';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiUser, FiMail, FiPhone, FiLock } from "react-icons/fi";
 
-export default function Driverregister() {
+export default function DriverRegister() {
     const [formData, setFormData] = useState({
-        driverName: '',
-        driverEmail: '',
-        driverPhone: '',
-        driverPassword: ''
+        driverName: "",
+        driverEmail: "",
+        driverPhone: "",
+        driverPassword: ""
     });
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [companyId, setCompanyId] = useState(""); // State to store companyId
     const navigate = useNavigate();
+
+    // Fetch companyId from local storage on component mount
+    useEffect(() => {
+        const storedCompanyId = localStorage.getItem("companyId");
+        if (!storedCompanyId) {
+            alert("Company ID not found. Please log in again.");
+            navigate("/login"); // Redirect to login if companyId is not found
+        } else {
+            setCompanyId(storedCompanyId); // Set companyId in state
+        }
+    }, [navigate]);
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.driverName.trim()) newErrors.driverName = 'Full name is required';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.driverEmail)) newErrors.driverEmail = 'Invalid email address';
-        if (!/^\d{10}$/.test(formData.driverPhone)) newErrors.driverPhone = 'Phone must be 10 digits';
-        if (formData.driverPassword.length < 8) newErrors.driverPassword = 'Password must be at least 8 characters';
+        if (!formData.driverName.trim()) newErrors.driverName = "Full name is required";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.driverEmail)) newErrors.driverEmail = "Invalid email address";
+        if (!/^\d{10}$/.test(formData.driverPhone)) newErrors.driverPhone = "Phone must be 10 digits";
+        if (formData.driverPassword.length < 8) newErrors.driverPassword = "Password must be at least 8 characters";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -31,30 +43,32 @@ export default function Driverregister() {
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('http://localhost:8080/driver/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+            const response = await fetch(`http://localhost:8080/driver/add?companyId=${companyId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData) // Send only the driver details in the body
             });
 
-            if (!response.ok) throw new Error('Registration failed');
+            if (!response.ok) {
+                const errorResponse = await response.text(); // Get the error message from the backend
+                throw new Error(errorResponse || "Registration failed");
+            }
 
-            alert('Registration successful!');
-            navigate('/dashboard');
+            alert("Registration successful!");
+            navigate("/dashboard");
         } catch (error) {
-            alert(error.message || 'An error occurred during registration');
+            alert(error.message || "An error occurred during registration");
         } finally {
             setIsSubmitting(false);
         }
     };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
-        if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+        if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     return (
@@ -82,8 +96,9 @@ export default function Driverregister() {
                                 value={formData.driverName}
                                 onChange={handleChange}
                                 placeholder="John Doe"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${errors.driverName ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-                                    }`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
+                                    errors.driverName ? "border-red-500" : "border-gray-300 focus:border-blue-500"
+                                }`}
                             />
                         </div>
                         {errors.driverName && <p className="text-red-500 text-sm mt-1">{errors.driverName}</p>}
@@ -102,8 +117,9 @@ export default function Driverregister() {
                                 value={formData.driverEmail}
                                 onChange={handleChange}
                                 placeholder="john@example.com"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${errors.driverEmail ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-                                    }`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
+                                    errors.driverEmail ? "border-red-500" : "border-gray-300 focus:border-blue-500"
+                                }`}
                             />
                         </div>
                         {errors.driverEmail && <p className="text-red-500 text-sm mt-1">{errors.driverEmail}</p>}
@@ -122,8 +138,9 @@ export default function Driverregister() {
                                 value={formData.driverPhone}
                                 onChange={handleChange}
                                 placeholder="1234567890"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${errors.driverPhone ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-                                    }`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
+                                    errors.driverPhone ? "border-red-500" : "border-gray-300 focus:border-blue-500"
+                                }`}
                             />
                         </div>
                         {errors.driverPhone && <p className="text-red-500 text-sm mt-1">{errors.driverPhone}</p>}
@@ -142,8 +159,9 @@ export default function Driverregister() {
                                 value={formData.driverPassword}
                                 onChange={handleChange}
                                 placeholder="••••••••"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${errors.driverPassword ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'
-                                    }`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
+                                    errors.driverPassword ? "border-red-500" : "border-gray-300 focus:border-blue-500"
+                                }`}
                             />
                         </div>
                         {errors.driverPassword && <p className="text-red-500 text-sm mt-1">{errors.driverPassword}</p>}
@@ -154,11 +172,9 @@ export default function Driverregister() {
                         disabled={isSubmitting}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting ? 'Registering...' : 'Create Account'}
+                        {isSubmitting ? "Registering..." : "Create Account"}
                     </button>
                 </form>
-
-
             </div>
         </div>
     );
