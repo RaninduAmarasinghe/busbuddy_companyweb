@@ -1,37 +1,81 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiUser, FiMail, FiPhone, FiLock } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
 
 export default function DriverRegister() {
     const [formData, setFormData] = useState({
         driverName: "",
         driverEmail: "",
         driverPhone: "",
-        driverPassword: ""
+        driverPassword: "",
+        busNumber: "",
     });
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [companyId, setCompanyId] = useState(""); // State to store companyId
+    const [companyId, setCompanyId] = useState("");
+    const [buses, setBuses] = useState([]);
+    const [loadingBuses, setLoadingBuses] = useState(true);
     const navigate = useNavigate();
-
-    // Fetch companyId from local storage on component mount
     useEffect(() => {
         const storedCompanyId = localStorage.getItem("companyId");
+        console.log("Retrieved Company ID:", storedCompanyId); // Debugging log
+
         if (!storedCompanyId) {
             alert("Company ID not found. Please log in again.");
-            navigate("/login"); // Redirect to login if companyId is not found
+            navigate("/login");
         } else {
-            setCompanyId(storedCompanyId); // Set companyId in state
+            setCompanyId(storedCompanyId);
+            fetchBuses(storedCompanyId);
         }
     }, [navigate]);
 
+    const fetchBuses = async (companyId) => {
+        try {
+            console.log("Fetching buses for companyId:", companyId);
+            const response = await fetch(`http://localhost:8080/bus/company/${companyId}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch buses: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Fetched Buses:", data); // Debugging output
+            setBuses(data);
+        } catch (error) {
+            console.error("Error fetching buses:", error);
+        } finally {
+            setLoadingBuses(false);
+        }
+    };
     const validateForm = () => {
-        const newErrors = {};
-        if (!formData.driverName.trim()) newErrors.driverName = "Full name is required";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.driverEmail)) newErrors.driverEmail = "Invalid email address";
-        if (!/^\d{10}$/.test(formData.driverPhone)) newErrors.driverPhone = "Phone must be 10 digits";
-        if (formData.driverPassword.length < 8) newErrors.driverPassword = "Password must be at least 8 characters";
+        let newErrors = {};
+
+        if (!formData.driverName.trim()) {
+            newErrors.driverName = "Full Name is required";
+        }
+
+        if (!formData.driverEmail.trim()) {
+            newErrors.driverEmail = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(formData.driverEmail)) {
+            newErrors.driverEmail = "Invalid email format";
+        }
+
+        if (!formData.driverPhone.trim()) {
+            newErrors.driverPhone = "Phone number is required";
+        } else if (!/^\d{10}$/.test(formData.driverPhone)) {
+            newErrors.driverPhone = "Phone number must be 10 digits";
+        }
+
+        if (!formData.driverPassword.trim()) {
+            newErrors.driverPassword = "Password is required";
+        } else if (formData.driverPassword.length < 6) {
+            newErrors.driverPassword = "Password must be at least 6 characters long";
+        }
+
+        if (!formData.busNumber) {
+            newErrors.busNumber = "Please select a bus";
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -46,22 +90,22 @@ export default function DriverRegister() {
             const response = await fetch(`http://localhost:8080/driver/add?companyId=${companyId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData) // Send only the driver details in the body
+                body: JSON.stringify(formData)
             });
 
             if (!response.ok) {
-                const errorResponse = await response.text(); // Get the error message from the backend
-                throw new Error(errorResponse || "Registration failed");
+                throw new Error(await response.text() || "Registration failed");
             }
 
             alert("Registration successful!");
             navigate("/dashboard");
         } catch (error) {
-            alert(error.message || "An error occurred during registration");
+            alert(error.message);
         } finally {
             setIsSubmitting(false);
         }
     };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -83,94 +127,75 @@ export default function DriverRegister() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Name Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Full Name
-                        </label>
-                        <div className="relative">
-                            <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                name="driverName"
-                                value={formData.driverName}
-                                onChange={handleChange}
-                                placeholder="John Doe"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
-                                    errors.driverName ? "border-red-500" : "border-gray-300 focus:border-blue-500"
-                                }`}
-                            />
-                        </div>
-                        {errors.driverName && <p className="text-red-500 text-sm mt-1">{errors.driverName}</p>}
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input
+                            type="text"
+                            name="driverName"
+                            value={formData.driverName}
+                            onChange={handleChange}
+                            className={`w-full p-3 border rounded-lg ${errors.driverName ? "border-red-500" : "border-gray-300"}`}
+                        />
                     </div>
 
-                    {/* Email Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Email Address
-                        </label>
-                        <div className="relative">
-                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="email"
-                                name="driverEmail"
-                                value={formData.driverEmail}
-                                onChange={handleChange}
-                                placeholder="john@example.com"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
-                                    errors.driverEmail ? "border-red-500" : "border-gray-300 focus:border-blue-500"
-                                }`}
-                            />
-                        </div>
-                        {errors.driverEmail && <p className="text-red-500 text-sm mt-1">{errors.driverEmail}</p>}
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input
+                            type="email"
+                            name="driverEmail"
+                            value={formData.driverEmail}
+                            onChange={handleChange}
+                            className={`w-full p-3 border rounded-lg ${errors.driverEmail ? "border-red-500" : "border-gray-300"}`}
+                        />
                     </div>
 
-                    {/* Phone Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Phone Number
-                        </label>
-                        <div className="relative">
-                            <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="tel"
-                                name="driverPhone"
-                                value={formData.driverPhone}
-                                onChange={handleChange}
-                                placeholder="1234567890"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
-                                    errors.driverPhone ? "border-red-500" : "border-gray-300 focus:border-blue-500"
-                                }`}
-                            />
-                        </div>
-                        {errors.driverPhone && <p className="text-red-500 text-sm mt-1">{errors.driverPhone}</p>}
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <input
+                            type="tel"
+                            name="driverPhone"
+                            value={formData.driverPhone}
+                            onChange={handleChange}
+                            className={`w-full p-3 border rounded-lg ${errors.driverPhone ? "border-red-500" : "border-gray-300"}`}
+                        />
                     </div>
 
-                    {/* Password Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="password"
-                                name="driverPassword"
-                                value={formData.driverPassword}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none ${
-                                    errors.driverPassword ? "border-red-500" : "border-gray-300 focus:border-blue-500"
-                                }`}
-                            />
-                        </div>
-                        {errors.driverPassword && <p className="text-red-500 text-sm mt-1">{errors.driverPassword}</p>}
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input
+                            type="password"
+                            name="driverPassword"
+                            value={formData.driverPassword}
+                            onChange={handleChange}
+                            className={`w-full p-3 border rounded-lg ${errors.driverPassword ? "border-red-500" : "border-gray-300"}`}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Assign Bus</label>
+                        <select
+                            name="busNumber"
+                            value={formData.busNumber}
+                            onChange={handleChange}
+                            className={`w-full p-3 border rounded-lg ${errors.busNumber ? "border-red-500" : "border-gray-300"}`}
+                        >
+                            <option value="">Select Bus</option>
+                            {loadingBuses ? (
+                                <option>Loading buses...</option>
+                            ) : (
+                                buses.map((bus) => (
+                                    <option key={bus.busId} value={bus.busNumber}>
+                                        {bus.busNumber} - {bus.companyName}
+                                    </option>
+                                ))
+                            )}
+                        </select>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg disabled:bg-gray-400"
                     >
                         {isSubmitting ? "Registering..." : "Create Account"}
                     </button>
