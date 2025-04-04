@@ -49,17 +49,18 @@ export default function BusRegister() {
     // Handle form submission
     const onSubmit = async (data) => {
         try {
-            // Fetch companyId from localStorage
             const companyId = localStorage.getItem('companyId');
-            console.log('Retrieved companyId:', companyId); // Log the companyId
+            console.log('Retrieved companyId:', companyId);
 
             if (!companyId) {
                 alert('Company ID not found. Please log in again.');
                 return;
             }
 
-            // Send the data to the backend with companyId as a query parameter
             const response = await axios.post(`http://localhost:8080/bus/add?companyId=${companyId}`, data);
+
+            console.log('Response from backend:', response.data); // 👈 Add this
+
             if (response.data === 'success') {
                 alert('Bus registered successfully!');
             } else {

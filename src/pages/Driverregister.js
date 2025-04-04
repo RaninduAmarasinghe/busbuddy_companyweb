@@ -8,7 +8,7 @@ export default function DriverRegister() {
         driverEmail: "",
         driverPhone: "",
         driverPassword: "",
-        busNumber: "",
+        busId: "", // Changed to busId
     });
 
     const [errors, setErrors] = useState({});
@@ -17,6 +17,7 @@ export default function DriverRegister() {
     const [buses, setBuses] = useState([]);
     const [loadingBuses, setLoadingBuses] = useState(true);
     const navigate = useNavigate();
+
     useEffect(() => {
         const storedCompanyId = localStorage.getItem("companyId");
         console.log("Retrieved Company ID:", storedCompanyId); // Debugging log
@@ -48,6 +49,7 @@ export default function DriverRegister() {
             setLoadingBuses(false);
         }
     };
+
     const validateForm = () => {
         let newErrors = {};
 
@@ -73,8 +75,8 @@ export default function DriverRegister() {
             newErrors.driverPassword = "Password must be at least 6 characters long";
         }
 
-        if (!formData.busNumber) {
-            newErrors.busNumber = "Please select a bus";
+        if (!formData.busId) {
+            newErrors.busId = "Please select a bus"; // Updated to check busId
         }
 
         setErrors(newErrors);
@@ -90,7 +92,7 @@ export default function DriverRegister() {
             const response = await fetch(`http://localhost:8080/driver/add?companyId=${companyId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formData) // Send formData with busId
             });
 
             if (!response.ok) {
@@ -174,17 +176,17 @@ export default function DriverRegister() {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Assign Bus</label>
                         <select
-                            name="busNumber"
-                            value={formData.busNumber}
+                            name="busId" // Changed to busId
+                            value={formData.busId} // Changed to busId
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg ${errors.busNumber ? "border-red-500" : "border-gray-300"}`}
+                            className={`w-full p-3 border rounded-lg ${errors.busId ? "border-red-500" : "border-gray-300"}`}
                         >
                             <option value="">Select Bus</option>
                             {loadingBuses ? (
                                 <option>Loading buses...</option>
                             ) : (
                                 buses.map((bus) => (
-                                    <option key={bus.busId} value={bus.busNumber}>
+                                    <option key={bus.busId} value={bus.busId}> {/* Use busId here */}
                                         {bus.busNumber} - {bus.companyName}
                                     </option>
                                 ))
