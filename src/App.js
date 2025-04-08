@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Driverregister from "./pages/Driverregister";
 import Busregister from "./pages/Busregister";
 import Busmanagement from "./pages/Busmanagement";
+import AlertsPage from "./pages/AlertsPage";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/driver/register" element={<Driverregister />} />
         <Route path="/bus/register" element={<Busregister />} />
-        <Route path="/bus/management" element={<Busmanagement />} />
+        <Route path="/bus/management" element={<Busmanagement />} />\
+        <Route path="/alerts" element={<AlertsPage />} />
       </Routes>
     </Router>
   );
