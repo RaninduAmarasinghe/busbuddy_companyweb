@@ -57,21 +57,33 @@ export default function BusRegister() {
                 return;
             }
 
-            const response = await axios.post(`http://localhost:8080/bus/add?companyId=${companyId}`, data);
+            // Add bus details including routes
+            const busData = {
+                busNumber: data.busNumber,
+                companyId: companyId,
+                routes: data.routes
+            };
 
-            console.log('Response from backend:', response.data); // 👈 Add this
+            // Send the POST request to the backend
+            const response = await axios.post(`http://localhost:8080/bus/add?companyId=${companyId}`, busData);
 
-            if (response.data === 'success') {
+            // Log the response data
+            console.log('Response from backend:', response.data);
+
+            // Check if the response data is success
+            if (response.data.includes('success')) {
                 alert('Bus registered successfully!');
             } else {
-                alert('Failed to register bus.');
+                alert(`Failed to register bus`);
             }
         } catch (error) {
+            // Log the error for debugging
             console.error('Error registering bus:', error);
-            alert('An error occurred while registering the bus.');
+
+            // Show an alert if an error occurs
+            alert(`An error occurred while registering the bus. Please try again.`);
         }
     };
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto bg-gray-800/50 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-gray-700/30">

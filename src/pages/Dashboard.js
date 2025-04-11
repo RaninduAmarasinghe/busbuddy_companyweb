@@ -16,7 +16,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [alerts, setAlerts] = useState([]);
 
-  const companyId = localStorage.getItem('companyId'); // ✅ Get real companyId
+  const companyId = localStorage.getItem('companyId'); 
 
   const cards = [
     {
