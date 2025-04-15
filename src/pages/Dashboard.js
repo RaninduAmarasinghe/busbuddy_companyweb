@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!companyId) {
-      console.warn("⚠️ No companyId found in localStorage");
+      console.warn("\u26A0\uFE0F No companyId found in localStorage");
       return;
     }
 
@@ -57,23 +57,24 @@ export default function Dashboard() {
       reconnectDelay: 5000,
       onConnect: () => {
         const topic = `/topic/messages/${companyId}`;
-        console.log('🛰️ Subscribing to', topic);
+        console.log('\uD83D\uDE80 Subscribing to', topic);
 
         stompClient.subscribe(topic, (message) => {
           try {
             const alert = JSON.parse(message.body);
-            console.log('📩 Incoming alert:', alert);
+            console.log('\uD83D\uDCE9 Incoming alert:', alert);
             setAlerts((prev) => {
               const exists = prev.some((a) => a.id === alert.id);
-              return exists ? prev : [alert, ...prev];
+              const updated = exists ? prev : [alert, ...prev];
+              return updated.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             });
           } catch (error) {
-            console.error("❌ Failed to parse alert message:", error);
+            console.error("\u274C Failed to parse alert message:", error);
           }
         });
       },
       onStompError: (frame) => {
-        console.error('❌ STOMP error:', frame);
+        console.error('\u274C STOMP error:', frame);
       },
     });
 
@@ -133,14 +134,20 @@ export default function Dashboard() {
                     >
                       <div
                           className={`p-3 rounded-lg ${
-                              alert.type === 'Complaint' ? 'bg-red-100' : 'bg-yellow-100'
+                              alert.type === 'Complaint'
+                                  ? 'bg-red-100'
+                                  : alert.type === 'DriverMessage'
+                                      ? 'bg-blue-100'
+                                      : 'bg-yellow-100'
                           }`}
                       >
                         <EnvelopeIcon
                             className={`w-6 h-6 ${
                                 alert.type === 'Complaint'
                                     ? 'text-red-600'
-                                    : 'text-yellow-600'
+                                    : alert.type === 'DriverMessage'
+                                        ? 'text-blue-600'
+                                        : 'text-yellow-600'
                             }`}
                         />
                       </div>
@@ -149,7 +156,9 @@ export default function Dashboard() {
                           <h3 className="font-semibold text-gray-900">
                             {alert.senderName}
                           </h3>
-                          <span className="text-sm text-gray-500">{alert.type}</span>
+                          <span className="text-sm text-gray-500">
+                      {alert.type === 'DriverMessage' ? 'Driver Message' : alert.type || 'General'}
+                    </span>
                         </div>
                         <p className="text-gray-600 text-sm mt-1">
                           {alert.message}
