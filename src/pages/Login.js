@@ -25,9 +25,9 @@ export default function Login() {
                 throw new Error('Login failed. Please check your email and password.');
             }
 
-            const companyId = await response.text(); // Get the companyId from the response
-            localStorage.setItem('companyId', companyId); // Store companyId in local storage
-            navigate('/dashboard'); // Redirect to the dashboard
+            const companyId = await response.text();
+            localStorage.setItem('companyId', companyId);
+            navigate('/dashboard');
         } catch (error) {
             setError(error.message || 'An error occurred during login');
         } finally {
@@ -36,94 +36,82 @@ export default function Login() {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative overflow-hidden">
-            {/* Floating bubbles background */}
-            <div className="absolute w-full h-full flex flex-wrap">
-                {[...Array(20)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="absolute w-4 h-4 bg-white opacity-10 rounded-full animate-float"
-                        style={{
-                            top: `${Math.random() * 100}%`,
-                            left: `${Math.random() * 100}%`,
-                            animationDuration: `${Math.random() * 10 + 10}s`,
-                            animationDelay: `${Math.random() * 5}s`,
-                        }}
-                    ></div>
-                ))}
-            </div>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 px-4">
+            {/* Container */}
+            <div className="w-full max-w-md p-8 rounded-xl bg-black bg-opacity-40 shadow-lg backdrop-blur-sm">
 
-            {/* Login card */}
-            <div className="flex w-full max-w-4xl h-4/5 bg-white bg-opacity-10 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden relative z-10">
-                {/* Left side - Welcome message */}
-                <div className="flex-1 flex flex-col justify-center items-center p-10 text-center text-white bg-gradient-to-br from-purple-800 via-blue-600 to-transparent relative overflow-hidden">
-                    <h1 className="text-4xl font-bold relative z-10 animate-fade-in">Welcome Back</h1>
-                    <p className="mt-2 text-gray-300 relative z-10 animate-fade-in delay-100">
-                        Where Innovation Meets Security
-                    </p>
-                </div>
+                {/* TMS Branding / Title */}
+                <h2 className="text-3xl font-semibold text-center text-gray-100 mb-1">
+                    Transport Management System
+                </h2>
+                <p className="text-gray-400 text-center mb-6 text-sm">
+                    Where Efficiency Meets Reliability
+                </p>
 
-                {/* Right side - Login form */}
-                <div className="flex-1 flex justify-center items-center p-10">
-                    <form
-                        className="bg-black bg-opacity-50 p-8 rounded-lg w-full max-w-sm animate-slide-in"
-                        onSubmit={handleSubmit}
-                    >
-                        <h2 className="text-white text-2xl font-semibold text-center mb-6">Company Login</h2>
+                {/* Display error message */}
+                {error && (
+                    <div className="mb-4 text-center text-red-400">
+                        {error}
+                    </div>
+                )}
 
-                        {/* Display error message */}
-                        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Email Input */}
+                    <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                            Company Email
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="w-full px-4 py-2 text-gray-200 bg-transparent border border-gray-600 rounded-md focus:outline-none focus:border-indigo-500"
+                        />
+                    </div>
 
-                        {/* Email Input */}
-                        <div className="mb-4 relative">
+                    {/* Password Input */}
+                    <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                            Password
+                        </label>
+                        <div className="relative">
                             <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="w-full bg-transparent border-b-2 border-gray-500 text-white py-2 px-3 focus:outline-none focus:border-orange-400 transition-all"
-                            />
-                            <label className="absolute left-3 top-2 text-gray-400 text-sm transition-all pointer-events-none">
-                                Company Email
-                            </label>
-                        </div>
-
-                        {/* Password Input */}
-                        <div className="mb-6 relative">
-                            <input
-                                type={showPassword ? "text" : "password"}  // Toggle password visibility
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full bg-transparent border-b-2 border-gray-500 text-white py-2 px-3 focus:outline-none focus:border-orange-400 transition-all"
+                                className="w-full px-4 py-2 text-gray-200 bg-transparent border border-gray-600 rounded-md focus:outline-none focus:border-indigo-500"
                             />
-                            <label className="absolute left-3 top-2 text-gray-400 text-sm transition-all pointer-events-none">
-                                Password
-                            </label>
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-2 text-gray-400 text-sm"
+                                className="absolute inset-y-0 right-3 flex items-center text-gray-400 text-sm hover:text-gray-200 focus:outline-none"
                             >
                                 {showPassword ? "Hide" : "Show"}
                             </button>
                         </div>
+                    </div>
 
-                        {/* Login Button */}
-                        <button
-                            type="submit"
-                            className={`w-full py-2 bg-gradient-to-r from-orange-500 to-yellow-400 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:opacity-90 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={loading}  // Disable button while loading
-                        >
-                            {loading ? "Logging In..." : "Login"}
-                        </button>
+                    {/* Login Button */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-2 rounded-md font-semibold text-white transition-all ${
+                            loading
+                                ? 'bg-indigo-500 opacity-50 cursor-not-allowed'
+                                : 'bg-indigo-600 hover:bg-indigo-500'
+                        }`}
+                    >
+                        {loading ? "Logging In..." : "Login"}
+                    </button>
+                </form>
 
-                        {/* Forgot Password Link */}
-                        <p className="mt-4 text-center text-gray-400 cursor-pointer hover:text-orange-400 transition">
-                            Forgot Password?
-                        </p>
-                    </form>
-                </div>
+                {/* Forgot Password Link */}
+                <p className="mt-4 text-center text-gray-400 hover:text-indigo-400 cursor-pointer transition">
+                    Forgot Password?
+                </p>
             </div>
         </div>
     );

@@ -41,7 +41,7 @@ export default function DriverRegister() {
             }
 
             const data = await response.json();
-            console.log("Fetched Buses:", data); // Debugging output
+            console.log("Fetched Buses:", data);
             setBuses(data);
         } catch (error) {
             console.error("Error fetching buses:", error);
@@ -76,7 +76,7 @@ export default function DriverRegister() {
         }
 
         if (!formData.busId) {
-            newErrors.busId = "Please select a bus"; // Updated to check busId
+            newErrors.busId = "Please select a bus";
         }
 
         setErrors(newErrors);
@@ -89,14 +89,17 @@ export default function DriverRegister() {
 
         setIsSubmitting(true);
         try {
-            const response = await fetch(`http://localhost:8080/driver/add?companyId=${companyId}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData) // Send formData with busId
-            });
+            const response = await fetch(
+                `http://localhost:8080/driver/add?companyId=${companyId}`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData),
+                }
+            );
 
             if (!response.ok) {
-                throw new Error(await response.text() || "Registration failed");
+                throw new Error((await response.text()) || "Registration failed");
             }
 
             alert("Registration successful!");
@@ -112,92 +115,133 @@ export default function DriverRegister() {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4">
+            <div className="bg-gray-900/50 backdrop-blur-md border border-cyan-300/20 shadow-xl w-full max-w-md p-8 rounded-2xl">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
-                        <FiUser className="text-blue-600" />
+                    <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 text-3xl font-bold flex items-center justify-center gap-2">
+                        <FiUser className="h-7 w-7" />
                         Driver Registration
                     </h1>
-                    <p className="text-gray-500 mt-2">Create your driver account</p>
+                    <p className="text-gray-300 mt-2 text-sm">Create your driver account</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Full Name */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <label className="block text-sm font-medium text-cyan-200 mb-2">
+                            Full Name
+                        </label>
                         <input
                             type="text"
                             name="driverName"
                             value={formData.driverName}
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg ${errors.driverName ? "border-red-500" : "border-gray-300"}`}
+                            className={`w-full bg-gray-800/50 border ${
+                                errors.driverName ? "border-red-400" : "border-gray-700"
+                            } rounded-lg py-2 px-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all`}
                         />
+                        {errors.driverName && (
+                            <p className="text-red-400 text-xs mt-1">{errors.driverName}</p>
+                        )}
                     </div>
 
+                    {/* Email Address */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <label className="block text-sm font-medium text-cyan-200 mb-2">
+                            Email Address
+                        </label>
                         <input
                             type="email"
                             name="driverEmail"
                             value={formData.driverEmail}
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg ${errors.driverEmail ? "border-red-500" : "border-gray-300"}`}
+                            className={`w-full bg-gray-800/50 border ${
+                                errors.driverEmail ? "border-red-400" : "border-gray-700"
+                            } rounded-lg py-2 px-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all`}
                         />
+                        {errors.driverEmail && (
+                            <p className="text-red-400 text-xs mt-1">{errors.driverEmail}</p>
+                        )}
                     </div>
 
+                    {/* Phone Number */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <label className="block text-sm font-medium text-cyan-200 mb-2">
+                            Phone Number
+                        </label>
                         <input
                             type="tel"
                             name="driverPhone"
                             value={formData.driverPhone}
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg ${errors.driverPhone ? "border-red-500" : "border-gray-300"}`}
+                            className={`w-full bg-gray-800/50 border ${
+                                errors.driverPhone ? "border-red-400" : "border-gray-700"
+                            } rounded-lg py-2 px-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all`}
                         />
+                        {errors.driverPhone && (
+                            <p className="text-red-400 text-xs mt-1">{errors.driverPhone}</p>
+                        )}
                     </div>
 
+                    {/* Password */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <label className="block text-sm font-medium text-cyan-200 mb-2">
+                            Password
+                        </label>
                         <input
                             type="password"
                             name="driverPassword"
                             value={formData.driverPassword}
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg ${errors.driverPassword ? "border-red-500" : "border-gray-300"}`}
+                            className={`w-full bg-gray-800/50 border ${
+                                errors.driverPassword ? "border-red-400" : "border-gray-700"
+                            } rounded-lg py-2 px-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all`}
                         />
+                        {errors.driverPassword && (
+                            <p className="text-red-400 text-xs mt-1">{errors.driverPassword}</p>
+                        )}
                     </div>
 
+                    {/* Assign Bus */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Assign Bus</label>
+                        <label className="block text-sm font-medium text-cyan-200 mb-2">
+                            Assign Bus
+                        </label>
                         <select
-                            name="busId" // Changed to busId
-                            value={formData.busId} // Changed to busId
+                            name="busId"
+                            value={formData.busId}
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg ${errors.busId ? "border-red-500" : "border-gray-300"}`}
+                            className={`w-full bg-gray-800/50 border ${
+                                errors.busId ? "border-red-400" : "border-gray-700"
+                            } rounded-lg py-2 px-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all`}
                         >
                             <option value="">Select Bus</option>
                             {loadingBuses ? (
                                 <option>Loading buses...</option>
                             ) : (
                                 buses.map((bus) => (
-                                    <option key={bus.busId} value={bus.busId}> {/* Use busId here */}
+                                    <option key={bus.busId} value={bus.busId}>
                                         {bus.busNumber} - {bus.companyName}
                                     </option>
                                 ))
                             )}
                         </select>
+                        {errors.busId && (
+                            <p className="text-red-400 text-xs mt-1">{errors.busId}</p>
+                        )}
                     </div>
 
+                    {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg disabled:bg-gray-400"
+                        className="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 text-white font-semibold rounded-lg shadow-md hover:shadow-cyan-500/50 transition-all disabled:opacity-50"
                     >
                         {isSubmitting ? "Registering..." : "Create Account"}
                     </button>

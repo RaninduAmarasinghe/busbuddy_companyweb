@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import axios from 'axios';
-import { MagnifyingGlassIcon, PencilIcon, TrashIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export default function BusManagement() {
     const [buses, setBuses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedBus, setSelectedBus] = useState(null);
-    const companyId = 'yourCompanyIdHere'; // Replace with actual company ID from auth
+    const companyId = localStorage.getItem('companyId');
 
-    // Fetch buses from API
     useEffect(() => {
         const fetchBuses = async () => {
             try {
@@ -23,37 +22,29 @@ export default function BusManagement() {
         fetchBuses();
     }, [companyId]);
 
-    // Search functionality
-    const filteredBuses = buses.filter(bus =>
-        bus.busNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        bus._id.includes(searchTerm)
+    const filteredBuses = buses.filter((bus) =>
+        bus.busNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        bus.busId?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Delete bus
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this bus?')) {
             try {
                 await axios.delete(`http://localhost:8080/bus/delete/${id}`);
-                setBuses(buses.filter(bus => bus._id !== id));
+                setBuses((prev) => prev.filter((bus) => bus.busId !== id));
             } catch (error) {
                 console.error('Error deleting bus:', error);
             }
         }
     };
 
-    // Handle form submission
     const handleFormSubmit = async (data) => {
         try {
-            if (selectedBus) {
-                // Update existing bus
-                await axios.put(`http://localhost:8080/bus/update/${selectedBus._id}`, data);
-            } else {
-                // Create new bus
-                await axios.post('http://localhost:8080/bus/add', { ...data, companyId });
-            }
+            await axios.put(`http://localhost:8080/bus/update/${selectedBus.busId}`, data);
             setIsModalOpen(false);
             setSelectedBus(null);
-            // Refresh bus list
+
+            // Refresh buses
             const response = await axios.get(`http://localhost:8080/bus/company/${companyId}`);
             setBuses(response.data);
         } catch (error) {
@@ -62,99 +53,95 @@ export default function BusManagement() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-8">
-            <div className="max-w-7xl mx-auto">
-                {/* Header and Search */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                        Bus Management System
-                    </h1>
-                    <div className="relative w-full md:w-96">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-6 flex flex-col items-center">
+            {/* Main container */}
+            <div className="w-full max-w-5xl bg-gray-900/50 backdrop-blur-md border border-cyan-300/20 shadow-xl rounded-2xl p-6 text-gray-100">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 text-3xl font-bold">
+                        Bus Management
+                    </h2>
+                    <div>
                         <input
                             type="text"
-                            placeholder="Search buses..."
-                            className="w-full pl-12 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                            placeholder="Search by bus number or ID"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            className="rounded-lg py-2 px-3 bg-gray-800/50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-gray-400 text-gray-100 transition-all w-64"
                         />
-                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-4 top-4" />
                     </div>
                 </div>
 
-                {/* Bus Table */}
-                <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl border border-gray-700/30 shadow-2xl overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-900/30">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-cyan-400">Bus Number</th>
-                                <th className="px-6 py-4 text-left text-cyan-400">Routes</th>
-                                <th className="px-6 py-4 text-left text-cyan-400">Actions</th>
-                            </tr>
+                <div className="overflow-x-auto">
+                    <table className="w-full border border-gray-700 text-gray-100">
+                        <thead>
+                        <tr className="bg-gray-800/50 border-b border-gray-700">
+                            <th className="p-3 text-left">Bus Number</th>
+                            <th className="p-3 text-left">Routes</th>
+                            <th className="p-3 text-left">Actions</th>
+                        </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-700/50">
-                            {filteredBuses.map((bus) => (
-                                <tr key={bus._id} className="hover:bg-gray-900/20 transition-colors">
-                                    <td className="px-6 py-4 text-gray-100 font-mono">{bus.busNumber}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-wrap gap-2">
-                                            {bus.routes.map((route, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full text-sm"
-                                                >
+                        <tbody>
+                        {filteredBuses.length === 0 ? (
+                            <tr>
+                                <td colSpan="3" className="p-3 text-center text-gray-400">
+                                    No buses found.
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredBuses.map((bus) => (
+                                <tr key={bus.busId} className="border-b border-gray-700">
+                                    <td className="p-3">{bus.busNumber}</td>
+                                    <td className="p-3">
+                                        {bus.routes.map((route, i) => (
+                                            <div key={i} className="mb-2">
+                                                <strong>
                                                     {route.startPoint} → {route.endPoint}
-                                                </span>
-                                            ))}
-                                        </div>
+                                                </strong>
+                                                <div>
+                                                    Departure: {route.departureTimes.join(', ')}
+                                                </div>
+                                                <div>Arrival: {route.arrivalTimes.join(', ')}</div>
+                                            </div>
+                                        ))}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex gap-4">
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedBus(bus);
-                                                    setIsModalOpen(true);
-                                                }}
-                                                className="text-cyan-400 hover:text-cyan-300"
-                                            >
-                                                <PencilIcon className="h-5 w-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(bus._id)}
-                                                className="text-rose-400 hover:text-rose-300"
-                                            >
-                                                <TrashIcon className="h-5 w-5" />
-                                            </button>
-                                        </div>
+                                    <td className="p-3 space-x-2">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedBus(bus);
+                                                setIsModalOpen(true);
+                                            }}
+                                            className="bg-yellow-500 text-white px-3 py-1 rounded hover:opacity-90 transition-all inline-flex items-center"
+                                        >
+                                            <PencilIcon className="w-4 h-4 mr-1" />
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(bus.busId)}
+                                            className="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-all inline-flex items-center"
+                                        >
+                                            <TrashIcon className="w-4 h-4 mr-1" />
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
-                            ))}
+                            ))
+                        )}
                         </tbody>
                     </table>
                 </div>
-
-                {/* Add New Bus Button */}
-                <button
-                    onClick={() => {
-                        setSelectedBus(null);
-                        setIsModalOpen(true);
-                    }}
-                    className="fixed bottom-8 right-8 p-4 bg-cyan-600 hover:bg-cyan-500 rounded-full shadow-2xl transition-all"
-                >
-                    <PlusCircleIcon className="h-8 w-8 text-white" />
-                </button>
-
-                {/* Bus Form Modal */}
-                {isModalOpen && (
-                    <BusFormModal
-                        bus={selectedBus}
-                        onClose={() => {
-                            setIsModalOpen(false);
-                            setSelectedBus(null);
-                        }}
-                        onSubmit={handleFormSubmit}
-                    />
-                )}
             </div>
+
+            {/* Modal */}
+            {isModalOpen && (
+                <BusFormModal
+                    bus={selectedBus}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        setSelectedBus(null);
+                    }}
+                    onSubmit={handleFormSubmit}
+                />
+            )}
         </div>
     );
 }
@@ -163,139 +150,95 @@ function BusFormModal({ bus, onClose, onSubmit }) {
     const { register, handleSubmit, control, reset } = useForm({
         defaultValues: bus || {
             busNumber: '',
-            routes: [{
-                routeNumber: 1,
-                startPoint: '',
-                endPoint: '',
-                departureTimes: [''],
-                arrivalTimes: ['']
-            }]
-        }
+            routes: [
+                { routeNumber: 1, startPoint: '', endPoint: '', departureTimes: [''], arrivalTimes: [''] },
+            ],
+        },
     });
 
-    const { fields: routes, append, remove } = useFieldArray({
+    const { fields: routes } = useFieldArray({
         control,
-        name: 'routes'
+        name: 'routes',
     });
 
     useEffect(() => {
-        reset(bus || {
-            busNumber: '',
-            routes: [{
-                routeNumber: 1,
-                startPoint: '',
-                endPoint: '',
-                departureTimes: [''],
-                arrivalTimes: ['']
-            }]
-        });
+        reset(
+            bus || {
+                busNumber: '',
+                routes: [
+                    {
+                        routeNumber: 1,
+                        startPoint: '',
+                        endPoint: '',
+                        departureTimes: [''],
+                        arrivalTimes: [''],
+                    },
+                ],
+            }
+        );
     }, [bus, reset]);
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-gray-800/90 backdrop-blur-lg rounded-2xl p-8 w-full max-w-3xl border border-gray-700/30 shadow-2xl">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-cyan-400">
-                        {bus ? 'Edit Bus' : 'Add New Bus'}
-                    </h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-200">
-                        ✕
-                    </button>
-                </div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            {/* Modal container */}
+            <div className="bg-gray-900/70 border border-cyan-300/10 shadow-2xl rounded-xl p-6 w-full max-w-2xl text-gray-100">
+                <h3 className="text-lg font-semibold text-cyan-300 mb-4">Edit Bus</h3>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Bus Number Field */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Bus Number
-                        </label>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    {/* Bus Number */}
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium mb-1">Bus Number</label>
                         <input
-                            {...register('busNumber', { required: true })}
-                            className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                            {...register('busNumber')}
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
                         />
                     </div>
 
-                    {/* Routes Section */}
+                    {/* Routes */}
                     {routes.map((route, index) => (
-                        <div key={route.id} className="bg-gray-900/30 p-6 rounded-xl border border-gray-700/50">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold text-cyan-400">
-                                    Route #{index + 1}
-                                </h3>
-                                {index > 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => remove(index)}
-                                        className="text-rose-400 hover:text-rose-300"
-                                    >
-                                        Remove Route
-                                    </button>
-                                )}
-                            </div>
+                        <div key={route.id} className="border border-gray-700 rounded-lg p-3 mb-4 bg-gray-800/30">
+                            <label className="block text-sm font-medium mb-1">Start Point</label>
+                            <input
+                                {...register(`routes.${index}.startPoint`)}
+                                className="w-full mb-2 bg-gray-800/50 border border-gray-700 rounded-lg py-1 px-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
+                            />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        Start Point
-                                    </label>
-                                    <input
-                                        {...register(`routes[${index}].startPoint`, { required: true })}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        End Point
-                                    </label>
-                                    <input
-                                        {...register(`routes[${index}].endPoint`, { required: true })}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
-                                    />
-                                </div>
-                            </div>
+                            <label className="block text-sm font-medium mb-1">End Point</label>
+                            <input
+                                {...register(`routes.${index}.endPoint`)}
+                                className="w-full mb-2 bg-gray-800/50 border border-gray-700 rounded-lg py-1 px-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
+                            />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        Departure Time
-                                    </label>
-                                    <input
-                                        type="time"
-                                        {...register(`routes[${index}].departureTimes[0]`, { required: true })}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        Arrival Time
-                                    </label>
-                                    <input
-                                        type="time"
-                                        {...register(`routes[${index}].arrivalTimes[0]`, { required: true })}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-xl py-3 px-4 text-gray-100 focus:ring-2 focus:ring-cyan-500"
-                                    />
-                                </div>
-                            </div>
+                            <label className="block text-sm font-medium mb-1">Departure Times</label>
+                            <input
+                                {...register(`routes.${index}.departureTimes.0`)}
+                                type="time"
+                                className="w-full mb-2 bg-gray-800/50 border border-gray-700 rounded-lg py-1 px-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
+                            />
+
+                            <label className="block text-sm font-medium mb-1">Arrival Times</label>
+                            <input
+                                {...register(`routes.${index}.arrivalTimes.0`)}
+                                type="time"
+                                className="w-full mb-2 bg-gray-800/50 border border-gray-700 rounded-lg py-1 px-2 text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
+                            />
                         </div>
                     ))}
 
-                    <div className="text-center">
+                    {/* Form actions */}
+                    <div className="flex justify-end space-x-4 mt-6">
                         <button
                             type="button"
-                            onClick={() => append({ routeNumber: routes.length + 1, startPoint: '', endPoint: '', departureTimes: [''], arrivalTimes: [''] })}
-                            className="text-cyan-400 hover:text-cyan-300"
+                            onClick={onClose}
+                            className="bg-gray-500 text-gray-100 px-4 py-2 rounded hover:opacity-90 transition-all"
                         >
-                            Add New Route
+                            Cancel
                         </button>
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex justify-center mt-8">
                         <button
                             type="submit"
-                            className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-white"
+                            className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded font-semibold hover:opacity-90 transition-all"
                         >
-                            Save Bus
+                            Save
                         </button>
                     </div>
                 </form>
