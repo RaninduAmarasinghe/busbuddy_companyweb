@@ -90,11 +90,11 @@ export default function DriverRegister() {
         setIsSubmitting(true);
         try {
             const response = await fetch(
-                `http://localhost:8080/driver/add?companyId=${companyId}`,
+                `http://localhost:8080/driver/add?companyId=${companyId}`,  // you can keep or remove this param
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({ ...formData, companyId }), // add companyId here
                 }
             );
 
@@ -102,7 +102,8 @@ export default function DriverRegister() {
                 throw new Error((await response.text()) || "Registration failed");
             }
 
-            alert("Registration successful!");
+            const data = await response.json();  // get JSON response (with driverId)
+            alert(`Registration successful! Your Driver ID is: ${data.driverId}`);
             navigate("/dashboard");
         } catch (error) {
             alert(error.message);
@@ -110,6 +111,7 @@ export default function DriverRegister() {
             setIsSubmitting(false);
         }
     };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
