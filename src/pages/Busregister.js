@@ -3,6 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import axios from 'axios';
 import { PlusCircleIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 // Yup validation schema
 const schema = yup.object().shape({
@@ -61,10 +62,10 @@ export default function BusRegister() {
                 routes: data.routes
             };
 
-            const response = await axios.post(
-                `http://localhost:8080/bus/add?companyId=${companyId}`,
-                busData
-            );
+           const response = await axios.post(
+    `${API_BASE_URL}${ENDPOINTS.BUS_ADD}?companyId=${companyId}`,
+    busData
+);
 
             if (response.data.includes('success')) {
                 alert('Bus registered successfully!');

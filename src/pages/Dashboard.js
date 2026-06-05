@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
+
 import {
   UserCircleIcon,
   UsersIcon,
@@ -47,7 +49,9 @@ export default function Dashboard() {
     }
 
     // Fetch company name
-    fetch(`http://localhost:8080/companies/${companyId}`)
+    fetch(
+  `${API_BASE_URL}${ENDPOINTS.COMPANY_BY_ID}/${companyId}`
+)
         .then((res) => res.json())
         .then((data) => {
           setCompanyName(data.companyName);
@@ -55,7 +59,9 @@ export default function Dashboard() {
         .catch((err) => console.error("Failed to fetch company:", err));
 
     // WebSocket
-    const socket = new SockJS('http://localhost:8080/ws-location');
+    const socket = new SockJS(
+  `${API_BASE_URL}/ws-location`
+);
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

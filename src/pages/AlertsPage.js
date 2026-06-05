@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function AlertsPage() {
     const location = useLocation();
@@ -15,7 +16,9 @@ export default function AlertsPage() {
             return;
         }
 
-        fetch(`http://localhost:8080/company/${companyId}`)
+       fetch(
+  `${API_BASE_URL}${ENDPOINTS.ALERTS_BY_COMPANY}/${companyId}`
+)
             .then((res) => {
                 if (!res.ok) throw new Error('Failed to fetch');
                 return res.json();

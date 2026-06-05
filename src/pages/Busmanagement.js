@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import axios from 'axios';
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function BusManagement() {
     const [buses, setBuses] = useState([]);
@@ -13,7 +14,9 @@ export default function BusManagement() {
     useEffect(() => {
         const fetchBuses = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/bus/company/${companyId}`);
+               const response = await axios.get(
+  `${API_BASE_URL}${ENDPOINTS.BUS_BY_COMPANY}/${companyId}`
+);
                 setBuses(response.data);
             } catch (error) {
                 console.error('Error fetching buses:', error);
@@ -30,7 +33,9 @@ export default function BusManagement() {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this bus?')) {
             try {
-                await axios.delete(`http://localhost:8080/bus/delete/${id}`);
+               await axios.delete(
+  `${API_BASE_URL}${ENDPOINTS.BUS_DELETE}/${id}`
+);
                 setBuses((prev) => prev.filter((bus) => bus.busId !== id));
             } catch (error) {
                 console.error('Error deleting bus:', error);
@@ -40,12 +45,17 @@ export default function BusManagement() {
 
     const handleFormSubmit = async (data) => {
         try {
-            await axios.put(`http://localhost:8080/bus/update/${selectedBus.busId}`, data);
+           await axios.put(
+  `${API_BASE_URL}${ENDPOINTS.BUS_UPDATE}/${selectedBus.busId}`,
+  data
+);
             setIsModalOpen(false);
             setSelectedBus(null);
 
             // Refresh buses
-            const response = await axios.get(`http://localhost:8080/bus/company/${companyId}`);
+           const response = await axios.get(
+  `${API_BASE_URL}${ENDPOINTS.BUS_BY_COMPANY}/${companyId}`
+);
             setBuses(response.data);
         } catch (error) {
             console.error('Error saving bus:', error);

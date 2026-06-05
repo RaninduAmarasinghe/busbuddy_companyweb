@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiUser } from "react-icons/fi";
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function DriverRegister() {
     const [formData, setFormData] = useState({
@@ -34,7 +35,9 @@ export default function DriverRegister() {
     const fetchBuses = async (companyId) => {
         try {
             console.log("Fetching buses for companyId:", companyId);
-            const response = await fetch(`http://localhost:8080/bus/company/${companyId}`);
+            const response = await fetch(
+  `${API_BASE_URL}${ENDPOINTS.BUS_BY_COMPANY}/${companyId}`
+);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch buses: ${response.status}`);
@@ -89,14 +92,19 @@ export default function DriverRegister() {
 
         setIsSubmitting(true);
         try {
-            const response = await fetch(
-                `http://localhost:8080/driver/add?companyId=${companyId}`,  // you can keep or remove this param
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...formData, companyId }), // add companyId here
-                }
-            );
+           const response = await fetch(
+    `${API_BASE_URL}${ENDPOINTS.DRIVER_ADD}?companyId=${companyId}`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            ...formData,
+            companyId,
+        }),
+    }
+);
 
             if (!response.ok) {
                 throw new Error((await response.text()) || "Registration failed");

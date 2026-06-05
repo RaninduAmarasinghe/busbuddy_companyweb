@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function DriverManagement() {
   const [query, setQuery] = useState('');
@@ -16,7 +17,9 @@ export default function DriverManagement() {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/driver/search?query=${query}`);
+    const res = await fetch(
+  `${API_BASE_URL}${ENDPOINTS.DRIVER_SEARCH}?query=${query}`
+);
       const data = await res.json();
       setDrivers(data);
     } catch (err) {
@@ -29,7 +32,12 @@ export default function DriverManagement() {
   const handleDelete = async (driverId) => {
     if (!window.confirm("Are you sure you want to delete this driver?")) return;
     try {
-      await fetch(`http://localhost:8080/driver/delete/${driverId}`, { method: 'DELETE' });
+      await fetch(
+  `${API_BASE_URL}${ENDPOINTS.DRIVER_DELETE}/${driverId}`,
+  {
+    method: "DELETE",
+  }
+);
       setDrivers(drivers.filter((d) => d.driverId !== driverId));
     } catch (err) {
       console.error("Delete error:", err);
@@ -48,11 +56,16 @@ export default function DriverManagement() {
 
   const handleEditSubmit = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/driver/update/${editingDriver.driverId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
-      });
+    const res = await fetch(
+  `${API_BASE_URL}${ENDPOINTS.DRIVER_UPDATE}/${editingDriver.driverId}`,
+  {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(editForm),
+  }
+);
 
       if (res.ok) {
         alert("Driver updated successfully");

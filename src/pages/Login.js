@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -15,11 +16,19 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8080/companies/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ companyEmail: email, companyPassword: password })
-            });
+          const response = await fetch(
+    `${API_BASE_URL}${ENDPOINTS.COMPANY_LOGIN}`,
+    {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            companyEmail: email,
+            companyPassword: password
+        })
+    }
+);
 
             if (!response.ok) {
                 throw new Error('Login failed. Please check your email and password.');
