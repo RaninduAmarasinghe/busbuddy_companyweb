@@ -34,9 +34,19 @@ export default function Login() {
                 throw new Error('Login failed. Please check your email and password.');
             }
 
-            const companyId = await response.text();
-            localStorage.setItem('companyId', companyId);
-            navigate('/dashboard');
+          const companyId = await response.text();
+
+console.log("Logged In Company ID:", companyId);
+
+localStorage.removeItem('companyId');
+localStorage.setItem('companyId', companyId);
+
+console.log(
+  "Stored Company ID:",
+  localStorage.getItem('companyId')
+);
+
+navigate('/dashboard');
         } catch (error) {
             setError(error.message || 'An error occurred during login');
         } finally {
