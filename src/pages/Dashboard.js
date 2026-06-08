@@ -131,75 +131,7 @@ return (
    <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-500/10 blur-[140px] rounded-full"></div>
 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[140px] rounded-full"></div>
 
-    {/* Sidebar */}
-    <aside className="w-72 bg-black/20 backdrop-blur-2xl border-r border-white/10 flex flex-col z-10">
-
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center gap-4">
-
-         <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-            <FaBus className="text-white text-xl" />
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-bold">
-              BusBuddy
-            </h1>
-
-            <p className="text-xs text-gray-400">
-              Company Portal
-            </p>
-          </div>
-
-        </div>
-      </div>
-
-      <nav className="flex-1 p-4 space-y-2">
-
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg"
-        >
-          Dashboard
-        </button>
-
-        <button
-          onClick={() => navigate('/driver/register')}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all"
-        >
-          Driver Registration
-        </button>
-
-        <button
-          onClick={() => navigate('/drivers/manage')}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all"
-        >
-          Driver Management
-        </button>
-
-        <button
-          onClick={() => navigate('/bus/register')}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all"
-        >
-          Bus Registration
-        </button>
-
-        <button
-          onClick={() => navigate('/bus/management')}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all"
-        >
-          Bus Management
-        </button>
-
-      </nav>
-
-      <div className="p-4 border-t border-white/10">
-        <div className="text-sm text-gray-500">
-          BusBuddy © 2026
-        </div>
-      </div>
-
-    </aside>
+ 
 
     {/* Main Content */}
     <main className="flex-1 p-8 relative z-10">
